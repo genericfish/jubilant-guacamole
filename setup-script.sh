@@ -1,11 +1,26 @@
 #!/bin/bash
 
-# Sanitize data
+################################################
+# PART 1: Process the input data from data.zip #
+################################################
+
 DATA_PATH="${1-data}"
 DATA_CLEAN_PATH="${DATA_PATH}/clean"
 
+if [ ! -d "$DATA_PATH" ]; then
+    echo "Invalid path \"${DATA_PATH}\" specified."
+    exit 1
+fi
+
 # Make new "clean" directory if not exists in DATA_PATH
 mkdir -p ${DATA_CLEAN_PATH}
+
+# We depend on GNU extensions to awk, check for awk before falling back to awk
+AWK_CMD="gawk"
+
+if ! command -v gawk > /dev/null; then
+    AWK_CMD="awk"
+fi
 
 # Clean all files
 for f in $DATA_PATH/*; do
@@ -14,45 +29,47 @@ for f in $DATA_PATH/*; do
         clean_path="${DATA_CLEAN_PATH}/${filename}"
 
         # Replace commas with forward slashes to preserve lists
-        # Replace tabs with commas to get into CSV format
-        # Save to DATA_CLEAN_PATH/filename-clean.csv
-        head -n1 $f | sed 's/\t/,/g' | sed 's/.//' > ${clean_path}
-        tail -n+2 $f | sed 's/,/\//g' | awk -F"\t" '{FNR > 1; OFS=","; $1=""; print $0}' | sed 's/^,//g' >> ${clean_path}
+        # Replace tabs with commas to get into CSV format, and remove first column of junk data
+        # Remove leading commas if they exist
+        # Save to $clean_path
+        cat $f | sed 's/,/\//g' | $AWK_CMD -F'\t' '{FNR > 1; OFS=","; $1=""; print $0}' | sed 's/^,//g' >> ${clean_path}
     fi
 
     unset filename
     unset clean_path
 done
 
+# do awk command, first parameter is awk command, second is filename
+dawk () {
+    $AWK_CMD -F, "$1" $DATA_CLEAN_PATH/$2 >> $DATA_CLEAN_PATH/temp.csv
+    mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/$2
+}
+
 # Remove duplicates in titleId column in titles.csv
-awk -F"," '!seen[$1]++' $DATA_CLEAN_PATH/titles.csv > $DATA_CLEAN_PATH/temp.csv
-mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/titles.csv
+dawk '!seen[$1]++' titles.csv
 
 # Remove duplicates in nconst column in principals.csv
-awk -F"," '!seen[$2]++' $DATA_CLEAN_PATH/principals.csv > $DATA_CLEAN_PATH/temp.csv
-mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/principals.csv
+dawk '!seen[$2]++' principals.csv
 
 # Remove duplicates in nconst column in names.csv
-awk -F"," '!seen[$1]++' $DATA_CLEAN_PATH/names.csv > $DATA_CLEAN_PATH/temp.csv
-mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/names.csv
+dawk '!seen[$1]++' names.csv
 
-# Make sure crew.csv always has enough columns
-awk -F"," '{ if(NF == 2) print $0","; else if(NF == 1) print $0",,"; else print $0; }' $DATA_CLEAN_PATH/crew.csv > $DATA_CLEAN_PATH/temp.csv
-mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/crew.csv
+# Ensure crew.csv always has 3 columns
+dawk 'BEGIN{OFS=","} NF=3' crew.csv
 
-# Remove all bad data from titles.csv
-# sed 's/,,/,NA,/g' $DATA_CLEAN_PATH/titles.csv > $DATA_CLEAN_PATH/temp.csv
-awk -F"," 'NF == 10 { print $0 }' $DATA_CLEAN_PATH/titles.csv > $DATA_CLEAN_PATH/temp2.csv
-mv $DATA_CLEAN_PATH/temp2.csv $DATA_CLEAN_PATH/titles.csv
+# Delete any rows from titles.csv that do not have exactly 10 columns
+dawk 'NF == 10' titles.csv
 
-
+# Prepend a key column into principals.csv and customer_ratings.csv to act as primary key
 echo "key,titleId,nconst,category,job,characters" > $DATA_CLEAN_PATH/temp.csv
-awk -F"," 'NR > 1 {print NR-1","$0;}' $DATA_CLEAN_PATH/principals.csv >> $DATA_CLEAN_PATH/temp.csv
-mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/principals.csv
+dawk 'NR > 1 {print NR-1","$0;}' principals.csv
 
 echo "key,customerId,rating,date,titleId" > $DATA_CLEAN_PATH/temp.csv
-awk -F"," 'NR > 1 {print NR-1","$0;}' $DATA_CLEAN_PATH/customer_ratings.csv >> $DATA_CLEAN_PATH/temp.csv
-mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/customer_ratings.csv
+dawk 'NR > 1 {print NR-1","$0;}' customer_ratings.csv
+
+#########################################
+# PART 2: Upload clean data to database #
+#########################################
 
 PSQL_FLAGS="-h csce-315-db.engr.tamu.edu -U csce315_913_4_user -d csce315_913_4_db"
 
