@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import java.util.HashMap;
 public class TheSQLViewer 
@@ -15,6 +16,7 @@ public class TheSQLViewer
 
         // The main body of the GUI. Panels will be added and removed to this component
         JPanel body = new JPanel();
+        pages.put("body", body);
         body.setAlignmentX(Component.CENTER_ALIGNMENT);
         frame.add(body);
 
@@ -28,6 +30,7 @@ public class TheSQLViewer
         frame.setVisible(true);
     }
 
+    // Generates the page which the viewer would use
     public static void generateViewerPage(HashMap<String, JPanel> pageList)
     {
         JPanel page = new JPanel();
@@ -40,20 +43,38 @@ public class TheSQLViewer
         pageList.put("viewerPage", page);
     }
 
+    // Generates the page which the user first encounters
     public static void generateLandingPage(HashMap<String, JPanel> pageList)
     {
         JPanel page = new JPanel();
 
         // Page components
         JLabel title = new JLabel("I am a?");
-        JButton viewer = new JButton("Content Viewer");
-        JButton analyst = new JButton("Content Analyst");
 
+        JButton viewer = new JButton("Content Viewer");
+        viewer.addActionListener(new ActionListener(){
+            // When the button is pressed, switch pages
+            public void actionPerformed(ActionEvent e)
+            {
+                switchPage(pages, "viewerPage", "landingPage");
+            }
+        });
+
+        JButton analyst = new JButton("Content Analyst");
 
         page.add(title);
         page.add(viewer);
         page.add(analyst);
 
         pageList.put("landingPage", page);
+    }
+
+    // Removes the old page from the body and adds the new one
+    public static void switchPage(HashMap<String, JPanel> pageList, String newPage, String oldPage)
+    {
+        JPanel body = pageList.get("body");
+        pageList.get(oldPage).setVisible(false);
+        body.add(pageList.get(newPage));
+        body.remove(pageList.get(oldPage));
     }
 }
