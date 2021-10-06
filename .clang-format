@@ -1,0 +1,10 @@
+Standard: Cpp11
+BasedOnStyle: WebKit
+IndentWidth: 4
+IndentPPDirectives: AfterHash
+AlignOperands: Align
+AlignAfterOpenBracket: Align
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: True
+IndentCaseLabels: True

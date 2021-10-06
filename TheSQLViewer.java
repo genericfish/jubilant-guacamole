@@ -1,37 +1,36 @@
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import java.util.HashMap;
-public class TheSQLViewer 
-{ 
+import javax.swing.*;
+public class TheSQLViewer {
     // Contains every page
-    static HashMap<String, JPanel> pages = new HashMap<String, JPanel>();
-    
-    public static void main(String[] args) 
+    static HashMap<String, JPanel> gPages = new HashMap<String, JPanel>();
+    static JPanel gCurrentPage = null;
+    static JPanel gBody = null;
+
+    public static void main(String[] args)
     {
         // Initialize the window
         JFrame frame = new JFrame("Project 4: The SQL");
-        frame.setSize(700,800);
+        frame.setSize(700, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // The main body of the GUI. Panels will be added and removed to this component
-        JPanel body = new JPanel();
-        pages.put("body", body);
-        body.setAlignmentX(Component.CENTER_ALIGNMENT);
-        frame.add(body);
+        gBody = new JPanel();
+        gBody.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Generate Pages
-        generateLandingPage(pages);
-        generateViewerPage(pages);
+        generateLandingPage();
+        generateViewerPage();
 
-        body.add(pages.get("landingPage"));
-
+        frame.add(gBody);
+        setPage("landingPage");
 
         frame.setVisible(true);
     }
 
     // Generates the page which the viewer would use
-    public static void generateViewerPage(HashMap<String, JPanel> pageList)
+    public static void generateViewerPage()
     {
         JPanel page = new JPanel();
 
@@ -40,11 +39,11 @@ public class TheSQLViewer
 
         page.add(title);
 
-        pageList.put("viewerPage", page);
+        gPages.put("viewerPage", page);
     }
 
     // Generates the page which the user first encounters
-    public static void generateLandingPage(HashMap<String, JPanel> pageList)
+    public static void generateLandingPage()
     {
         JPanel page = new JPanel();
 
@@ -52,13 +51,8 @@ public class TheSQLViewer
         JLabel title = new JLabel("I am a?");
 
         JButton viewer = new JButton("Content Viewer");
-        viewer.addActionListener(new ActionListener(){
-            // When the button is pressed, switch pages
-            public void actionPerformed(ActionEvent e)
-            {
-                switchPage(pages, "viewerPage", "landingPage");
-            }
-        });
+
+        viewer.addActionListener(e -> setPage("viewerPage"));
 
         JButton analyst = new JButton("Content Analyst");
 
@@ -66,15 +60,19 @@ public class TheSQLViewer
         page.add(viewer);
         page.add(analyst);
 
-        pageList.put("landingPage", page);
+        gPages.put("landingPage", page);
     }
 
     // Removes the old page from the body and adds the new one
-    public static void switchPage(HashMap<String, JPanel> pageList, String newPage, String oldPage)
+    public static void setPage(String pageName)
     {
-        JPanel body = pageList.get("body");
-        pageList.get(oldPage).setVisible(false);
-        body.add(pageList.get(newPage));
-        body.remove(pageList.get(oldPage));
+        if (gCurrentPage != null)
+            gBody.remove(gCurrentPage);
+
+        gCurrentPage = gPages.get(pageName);
+        gBody.add(gCurrentPage);
+
+        gBody.revalidate();
+        gBody.repaint();
     }
 }
