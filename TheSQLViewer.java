@@ -51,13 +51,8 @@ public class TheSQLViewer {
         JLabel title = new JLabel("I am a?");
 
         JButton viewer = new JButton("Content Viewer");
-        viewer.addActionListener(new ActionListener() {
-            // When the button is pressed, switch gPages
-            public void actionPerformed(ActionEvent e)
-            {
-                setPage("viewerPage");
-            }
-        });
+
+        viewer.addActionListener(e -> setPage("viewerPage"));
 
         JButton analyst = new JButton("Content Analyst");
 
