@@ -4,9 +4,9 @@ import java.util.HashMap;
 import javax.swing.*;
 public class TheSQLViewer {
     // Contains every page
-    static HashMap<String, JPanel> m_pages = new HashMap<String, JPanel>();
-    static JPanel m_current_page = null;
-    static JPanel m_body = null;
+    static HashMap<String, JPanel> gPages = new HashMap<String, JPanel>();
+    static JPanel gCurrentPage = null;
+    static JPanel gBody = null;
 
     public static void main(String[] args)
     {
@@ -16,14 +16,14 @@ public class TheSQLViewer {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // The main body of the GUI. Panels will be added and removed to this component
-        m_body = new JPanel();
-        m_body.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gBody = new JPanel();
+        gBody.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Generate Pages
         generateLandingPage();
         generateViewerPage();
 
-        frame.add(m_body);
+        frame.add(gBody);
         setPage("landingPage");
 
         frame.setVisible(true);
@@ -39,7 +39,7 @@ public class TheSQLViewer {
 
         page.add(title);
 
-        m_pages.put("viewerPage", page);
+        gPages.put("viewerPage", page);
     }
 
     // Generates the page which the user first encounters
@@ -52,7 +52,7 @@ public class TheSQLViewer {
 
         JButton viewer = new JButton("Content Viewer");
         viewer.addActionListener(new ActionListener() {
-            // When the button is pressed, switch m_pages
+            // When the button is pressed, switch gPages
             public void actionPerformed(ActionEvent e)
             {
                 setPage("viewerPage");
@@ -65,19 +65,19 @@ public class TheSQLViewer {
         page.add(viewer);
         page.add(analyst);
 
-        m_pages.put("landingPage", page);
+        gPages.put("landingPage", page);
     }
 
     // Removes the old page from the body and adds the new one
     public static void setPage(String pageName)
     {
-        if (m_current_page != null)
-            m_body.remove(m_current_page);
+        if (gCurrentPage != null)
+            gBody.remove(gCurrentPage);
 
-        m_current_page = m_pages.get(pageName);
-        m_body.add(m_current_page);
+        gCurrentPage = gPages.get(pageName);
+        gBody.add(gCurrentPage);
 
-        m_body.revalidate();
-        m_body.repaint();
+        gBody.revalidate();
+        gBody.repaint();
     }
 }
