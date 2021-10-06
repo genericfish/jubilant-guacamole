@@ -15,6 +15,43 @@ public class TheSQLViewer
         body.setAlignmentX(Component.CENTER_ALIGNMENT);
         frame.add(body);
 
+        // Generate Pages
+        JPanel landingPage = generateLandingPage();
+        // JPanel contentViewer = generateViewerPage();
+        body.add(landingPage);
+
+
         frame.setVisible(true);
+    }
+
+    public static JPanel generateViewerPage()
+    {
+        JPanel page = new JPanel();
+
+        // Page components
+        JLabel title = new JLabel("Project 4: The SQL");
+
+        page.add(title);
+
+        return page;
+    }
+
+    public static JPanel generateLandingPage()
+    {
+        JPanel page = new JPanel();
+
+        // Page components
+        JLabel title = new JLabel("I am a?");
+        JButton viewer = new JButton("Content Viewer");
+        JButton analyst = new JButton("Content Analyst");
+
+
+        page.add(title);
+        page.add(viewer);
+        page.add(analyst);
+
+        
+
+        return page;
     }
 }
