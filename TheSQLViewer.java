@@ -1,7 +1,10 @@
 import java.awt.*;
 import javax.swing.*;
+import java.util.HashMap;
 public class TheSQLViewer 
-{
+{ 
+    // Contains every page
+    static HashMap<String, JPanel> pages = new HashMap<String, JPanel>();
     
     public static void main(String[] args) 
     {
@@ -16,15 +19,16 @@ public class TheSQLViewer
         frame.add(body);
 
         // Generate Pages
-        JPanel landingPage = generateLandingPage();
-        // JPanel contentViewer = generateViewerPage();
-        body.add(landingPage);
+        generateLandingPage(pages);
+        generateViewerPage(pages);
+
+        body.add(pages.get("landingPage"));
 
 
         frame.setVisible(true);
     }
 
-    public static JPanel generateViewerPage()
+    public static void generateViewerPage(HashMap<String, JPanel> pageList)
     {
         JPanel page = new JPanel();
 
@@ -33,10 +37,10 @@ public class TheSQLViewer
 
         page.add(title);
 
-        return page;
+        pageList.put("viewerPage", page);
     }
 
-    public static JPanel generateLandingPage()
+    public static void generateLandingPage(HashMap<String, JPanel> pageList)
     {
         JPanel page = new JPanel();
 
@@ -50,8 +54,6 @@ public class TheSQLViewer
         page.add(viewer);
         page.add(analyst);
 
-        
-
-        return page;
+        pageList.put("landingPage", page);
     }
 }
