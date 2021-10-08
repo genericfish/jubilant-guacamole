@@ -2,11 +2,12 @@ import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.event.*;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
-import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 
 public class TheSQLViewer {
     // Contains every page
@@ -14,6 +15,8 @@ public class TheSQLViewer {
     static JPanel gCurrentPage = null;
     static JPanel gBody = null;
     static TheSQLSQL gDatabase = null;
+    static String gUsername = null;
+    static JTable gCurrentTable = null;
 
     public static void main(String[] args)
     {
@@ -29,6 +32,7 @@ public class TheSQLViewer {
         gBody.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Generate Pages
+        generateLoginPage();
         generateLandingPage();
         generateViewerPage();
         generateAnalystPage();
@@ -58,25 +62,70 @@ public class TheSQLViewer {
         JLabel title = new JLabel("Project 4: The SQL");
         title.setFont(f1);
 
-        JButton InProgress = new JButton("In Progess");
-        JButton popular = new JButton("Popular");
+        JButton History = new JButton("History");
         JButton New = new JButton("New");
         JButton likes = new JButton("Likes");
         JButton Dislikes = new JButton("Dislikes");
         JTextField search = new JTextField("Search", 20);
 
-        ResultSet result = gDatabase.query("SELECT * FROM titles LIMIT 10;");
+        History.addActionListener(e -> {
+            DefaultTableModel model = (DefaultTableModel)gCurrentTable.getModel();
+            model.setRowCount(0);
+
+            ResultSet result = gDatabase.query("SELECT * FROM titles LIMIT 20;");
+
+            String[] columns = { "originaltitle", "genres", "year", "runtimeminutes" };
+
+            Vector<Vector<String>> rec = gDatabase.getTable(result, columns);
+
+            for (Vector<String> row : rec) {
+                model.addRow(row);
+            }
+
+            gCurrentTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+
+            gBody.revalidate();
+            gBody.repaint();
+        });
+
+        New.addActionListener(e -> {
+            DefaultTableModel model = (DefaultTableModel)gCurrentTable.getModel();
+            model.setRowCount(0);
+
+            ResultSet result = gDatabase.query("SELECT * FROM titles OFFSET 20 LIMIT 20;");
+
+            String[] columns = { "originaltitle", "genres", "year", "runtimeminutes" };
+
+            Vector<Vector<String>> rec = gDatabase.getTable(result, columns);
+
+            for (Vector<String> row : rec) {
+                model.addRow(row);
+            }
+
+            gCurrentTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+
+            gBody.revalidate();
+            gBody.repaint();
+        });
+
+        ResultSet result = gDatabase.query("SELECT * FROM titles OFFSET 20 LIMIT 20;");
 
         String[] columns = { "originaltitle", "genres", "year", "runtimeminutes" };
 
         Vector<Vector<String>> rec = gDatabase.getTable(result, columns);
 
-        String[] header = { "Name", "Genre", "Year", "Runtime", " " };
+        String[] header = { "Name", "Genre", "Year", "Runtime" };
 
-        JTable table = new JTable(rec, new Vector(Arrays.asList(header)));
+        gCurrentTable = new JTable(rec, new Vector(Arrays.asList(header)));
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(300);
-        table.getColumnModel().getColumn(4).setPreferredWidth(10);
+        gCurrentTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+
+        //fifth row: table
+        gbcnt.fill = GridBagConstraints.HORIZONTAL;
+        gbcnt.gridwidth = 6;
+        gbcnt.gridx = 0;
+        gbcnt.gridy = 4;
+        page.add(new JScrollPane(gCurrentTable), gbcnt);
 
         //adding items to the page
         //first row: title
@@ -90,16 +139,12 @@ public class TheSQLViewer {
         //second row: In Progress, Popular, and New buttons
         gbcnt.fill = GridBagConstraints.HORIZONTAL;
         gbcnt.ipady = 5;
-        gbcnt.gridwidth = 2;
+        gbcnt.gridwidth = 3;
         gbcnt.gridx = 0;
         gbcnt.gridy = 1;
-        page.add(InProgress, gbcnt);
-        gbcnt.gridwidth = 2;
-        gbcnt.gridx = 2;
-        gbcnt.gridy = 1;
-        page.add(popular, gbcnt);
-        gbcnt.gridwidth = 2;
-        gbcnt.gridx = 4;
+        page.add(History, gbcnt);
+        gbcnt.gridwidth = 3;
+        gbcnt.gridx = 3;
         gbcnt.gridy = 1;
         page.add(New, gbcnt);
 
@@ -121,13 +166,6 @@ public class TheSQLViewer {
         gbcnt.gridx = 0;
         gbcnt.gridy = 3;
         page.add(search, gbcnt);
-
-        //fifth row: table
-        gbcnt.fill = GridBagConstraints.HORIZONTAL;
-        gbcnt.gridwidth = 6;
-        gbcnt.gridx = 0;
-        gbcnt.gridy = 4;
-        page.add(new JScrollPane(table), gbcnt);
 
         gPages.put("viewerPage", page);
     }
@@ -245,6 +283,41 @@ public class TheSQLViewer {
         gPages.put("analystPage", page);
     }
 
+    public static void generateLoginPage()
+    {
+        //define font
+        Font f1 = new Font(Font.SERIF, Font.PLAIN, 20);
+
+        JPanel page = new JPanel();
+
+        //formatting the page using grid bag layout
+        GridBagLayout gbl = new GridBagLayout();
+        GridBagConstraints gbcnt = new GridBagConstraints();
+        page.setLayout(gbl);
+        GridBagLayout layout = new GridBagLayout();
+        page.setLayout(layout);
+
+        // Page components
+        JLabel title = new JLabel("Customer ID:");
+        title.setFont(f1);
+
+        JTextField text = new JTextField("1488844");
+
+        JButton loginButton = new JButton("Login");
+
+        loginButton.addActionListener(e -> {
+            gUsername = text.getText();
+            System.out.println(gUsername);
+
+            setPage("viewerPage");
+        });
+
+        page.add(text);
+        page.add(loginButton);
+
+        gPages.put("loginPage", page);
+    }
+
     // Generates the page which the user first encounters
     public static void generateLandingPage()
     {
@@ -266,7 +339,7 @@ public class TheSQLViewer {
 
         JButton viewer = new JButton("Content Viewer");
 
-        viewer.addActionListener(e -> setPage("viewerPage"));
+        viewer.addActionListener(e -> setPage("loginPage"));
 
         JButton analyst = new JButton("Content Analyst");
 
