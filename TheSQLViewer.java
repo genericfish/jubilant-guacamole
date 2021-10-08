@@ -1,18 +1,24 @@
 import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.*;
+import java.sql.*;
 import java.util.HashMap;
+import java.util.Vector;
+import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import java.awt.BorderLayout;
 
 public class TheSQLViewer {
     // Contains every page
     static HashMap<String, JPanel> gPages = new HashMap<String, JPanel>();
     static JPanel gCurrentPage = null;
     static JPanel gBody = null;
+    static TheSQLSQL gDatabase = null;
 
     public static void main(String[] args)
     {
+        gDatabase = new TheSQLSQL();
+
         // Initialize the window
         JFrame frame = new JFrame("Project 4: The SQL");
         frame.setSize(700, 800);
@@ -25,7 +31,7 @@ public class TheSQLViewer {
         // Generate Pages
         generateLandingPage();
         generateViewerPage();
-        generateAnalystPage(); 
+        generateAnalystPage();
 
         frame.add(gBody);
         setPage("landingPage");
@@ -36,39 +42,41 @@ public class TheSQLViewer {
     // Generates the page which the viewer would use
     public static void generateViewerPage()
     {
-        //define font 
-        Font  f1  = new Font(Font.SERIF, Font.PLAIN,  20);
+        //define font
+        Font f1 = new Font(Font.SERIF, Font.PLAIN, 20);
 
         JPanel page = new JPanel();
 
-        //formatting the page using grid bag layout 
+        //formatting the page using grid bag layout
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbcnt = new GridBagConstraints();
         page.setLayout(gbl);
         GridBagLayout layout = new GridBagLayout();
         page.setLayout(layout);
-        
+
         // Page components
         JLabel title = new JLabel("Project 4: The SQL");
-        title.setFont(f1); 
+        title.setFont(f1);
 
         JButton InProgress = new JButton("In Progess");
         JButton popular = new JButton("Popular");
         JButton New = new JButton("New");
         JButton likes = new JButton("Likes");
-        JButton Dislikes = new JButton("Dislikes"); 
-        JTextField search= new JTextField("Search", 20);
+        JButton Dislikes = new JButton("Dislikes");
+        JTextField search = new JTextField("Search", 20);
 
-        String[][] rec = {
-         { "1", "Steve", "AUS", " ", " " },
-         { "2", "Virat", "IND", " ", " "},
-         { "3", "Kane", "NZ", " ", " " },
-         { "4", "David", "AUS", " ", " " },
-         { "5", "Ben", "ENG", " "," " },
-         { "6", "Eion", "ENG", " "," " },
-        };
-        String[] header = { "Name", "Genre", "Year", "Runtime", " " }; 
-        JTable table = new JTable(rec, header);
+        ResultSet result = gDatabase.query("SELECT * FROM titles LIMIT 10;");
+
+        String[] columns = { "originaltitle", "genres", "year", "runtimeminutes" };
+
+        Vector<Vector<String>> rec = gDatabase.getTable(result, columns);
+
+        String[] header = { "Name", "Genre", "Year", "Runtime", " " };
+
+        JTable table = new JTable(rec, new Vector(Arrays.asList(header)));
+
+        table.getColumnModel().getColumn(0).setPreferredWidth(300);
+        table.getColumnModel().getColumn(4).setPreferredWidth(10);
 
         //adding items to the page
         //first row: title
@@ -85,7 +93,7 @@ public class TheSQLViewer {
         gbcnt.gridwidth = 2;
         gbcnt.gridx = 0;
         gbcnt.gridy = 1;
-        page.add(InProgress, gbcnt);    
+        page.add(InProgress, gbcnt);
         gbcnt.gridwidth = 2;
         gbcnt.gridx = 2;
         gbcnt.gridy = 1;
@@ -114,24 +122,24 @@ public class TheSQLViewer {
         gbcnt.gridy = 3;
         page.add(search, gbcnt);
 
-        //fifth row: table 
+        //fifth row: table
         gbcnt.fill = GridBagConstraints.HORIZONTAL;
         gbcnt.gridwidth = 6;
         gbcnt.gridx = 0;
         gbcnt.gridy = 4;
-        page.add(new JScrollPane(table),gbcnt);
+        page.add(new JScrollPane(table), gbcnt);
 
         gPages.put("viewerPage", page);
     }
 
     public static void generateAnalystPage()
     {
-        //define font 
-        Font  f1  = new Font(Font.SERIF, Font.PLAIN,  20); 
+        //define font
+        Font f1 = new Font(Font.SERIF, Font.PLAIN, 20);
 
         JPanel page = new JPanel();
 
-        //formatting the page using grid bag layout 
+        //formatting the page using grid bag layout
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbcnt = new GridBagConstraints();
         page.setLayout(gbl);
@@ -145,39 +153,39 @@ public class TheSQLViewer {
         JButton content = new JButton("Content");
         JButton director = new JButton("Directors");
         JButton actor = new JButton("Actors");
-        JTextField search= new JTextField("Search", 20);
+        JTextField search = new JTextField("Search", 20);
 
         JLabel tabletitle = new JLabel("Popular Right Now");
-        tabletitle.setFont(f1); 
+        tabletitle.setFont(f1);
 
         String[][] rec1 = {
-         { "1", "Steve", "AUS" },
-         { "2", "Virat", "IND"},
-         { "3", "Kane", "NZ"},
-         { "4", "David", "AUS" },
-         { "5", "Ben", "ENG"},
-         { "6", "Eion", "ENG"},
+            { "1", "Steve", "AUS" },
+            { "2", "Virat", "IND" },
+            { "3", "Kane", "NZ" },
+            { "4", "David", "AUS" },
+            { "5", "Ben", "ENG" },
+            { "6", "Eion", "ENG" },
         };
         String[] header1 = { "Title", "stuff", "Popularity" };
         JTable table1 = new JTable(rec1, header1);
 
         String[][] rec2 = {
-         { "1", "Steve", "AUS" },
-         { "2", "Virat", "IND"},
-         { "3", "Kane", "NZ"},
-         { "4", "David", "AUS"},
-         { "5", "Ben", "ENG"},
-         { "6", "Eion", "ENG"},
+            { "1", "Steve", "AUS" },
+            { "2", "Virat", "IND" },
+            { "3", "Kane", "NZ" },
+            { "4", "David", "AUS" },
+            { "5", "Ben", "ENG" },
+            { "6", "Eion", "ENG" },
         };
-        String[] header2 = { "Genre", "Directors", "Actors"};
+        String[] header2 = { "Genre", "Directors", "Actors" };
         JTable table2 = new JTable(rec2, header2);
 
-        //adding items to the page  
+        //adding items to the page
         //first row: title
         gbcnt.fill = GridBagConstraints.HORIZONTAL;
         gbcnt.ipady = 20;
         gbcnt.gridwidth = 2;
-        gbcnt.gridx = 3; 
+        gbcnt.gridx = 3;
         gbcnt.gridy = 0;
         page.add(title, gbcnt);
 
@@ -194,7 +202,7 @@ public class TheSQLViewer {
         gbcnt.gridwidth = 2;
         gbcnt.gridx = 0;
         gbcnt.gridy = 2;
-        page.add(content, gbcnt);    
+        page.add(content, gbcnt);
         gbcnt.gridwidth = 2;
         gbcnt.gridx = 2;
         gbcnt.gridy = 2;
@@ -204,7 +212,7 @@ public class TheSQLViewer {
         gbcnt.gridy = 2;
         page.add(actor, gbcnt);
 
-        //fourth row: search bar 
+        //fourth row: search bar
         gbcnt.fill = GridBagConstraints.HORIZONTAL;
         gbcnt.ipady = 1;
         gbcnt.gridwidth = 6;
@@ -217,9 +225,9 @@ public class TheSQLViewer {
         gbcnt.gridwidth = 6;
         gbcnt.gridx = 0;
         gbcnt.gridy = 4;
-        page.add(new JScrollPane(table1),gbcnt);
+        page.add(new JScrollPane(table1), gbcnt);
 
-        //sixth row: table title 
+        //sixth row: table title
         gbcnt.fill = GridBagConstraints.HORIZONTAL;
         gbcnt.ipady = 10;
         gbcnt.gridwidth = 6;
@@ -232,21 +240,20 @@ public class TheSQLViewer {
         gbcnt.gridwidth = 6;
         gbcnt.gridx = 0;
         gbcnt.gridy = 6;
-        page.add(new JScrollPane(table2),gbcnt);
+        page.add(new JScrollPane(table2), gbcnt);
 
         gPages.put("analystPage", page);
-        
     }
 
     // Generates the page which the user first encounters
     public static void generateLandingPage()
     {
-        //define font 
-        Font  f1  = new Font(Font.SERIF, Font.PLAIN,  20); 
+        //define font
+        Font f1 = new Font(Font.SERIF, Font.PLAIN, 20);
 
         JPanel page = new JPanel();
 
-        //formatting the page using grid bag layout 
+        //formatting the page using grid bag layout
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbcnt = new GridBagConstraints();
         page.setLayout(gbl);
@@ -255,7 +262,7 @@ public class TheSQLViewer {
 
         // Page components
         JLabel title = new JLabel("I am a?");
-        title.setFont(f1); 
+        title.setFont(f1);
 
         JButton viewer = new JButton("Content Viewer");
 
@@ -264,8 +271,8 @@ public class TheSQLViewer {
         JButton analyst = new JButton("Content Analyst");
 
         analyst.addActionListener(e -> setPage("analystPage"));
-        
-        //adding items to the page 
+
+        //adding items to the page
         //first row: title
         gbcnt.fill = GridBagConstraints.HORIZONTAL;
         gbcnt.ipady = 20;
