@@ -30,19 +30,20 @@ public class TheSQLViewer extends Page {
         JTextField begin = new JTextField(mBegin, 20);
         JTextField end = new JTextField(mEnd, 20);
 
-        JButton historyButton = createButton("History", () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND date BETWEEN '%s' AND '%s' ORDER BY date DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
-        JButton newButton = createButton("New", () -> "SELECT * FROM titles ORDER BY year DESC LIMIT 20;");
+        JButton historyButton = createButton("History", () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
+        JButton newButton = createButton("New", () -> "SELECT * FROM titles ORDER BY year DESC, titleid DESC LIMIT 20;");
         JButton likedButton = createButton(
             "Liked",
-            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating > 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
+            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating > 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
         JButton dislikedButton = createButton(
             "Disliked",
-            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating < 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
+            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating < 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
         mTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e)
             {
                 if (e.getButton() != MouseEvent.BUTTON1 || e.getClickCount() < 2 || mPrevQueryResults == null)
                     return;
+
                 int row = mTable.getSelectedRow();
                 TheSQL.setPage(new TheSQLContent(mPrevQueryResults.get(row)));
             }
@@ -56,7 +57,7 @@ public class TheSQLViewer extends Page {
         add(newButton, 5, 3, 3, 1);
         add(likedButton, 0, 3, 0, 2);
         add(dislikedButton, 0, 3, 3, 2);
-        
+
         historyButton.doClick();
     }
 
