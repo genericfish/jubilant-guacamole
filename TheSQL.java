@@ -68,4 +68,16 @@ public class TheSQL {
         gBody.revalidate();
         gBody.repaint();
     }
+
+    public static void setPage(Page page)
+    {
+        if (gCurrentPage != null)
+            gBody.remove(gCurrentPage.mPanel);
+
+        gCurrentPage = page;
+        gBody.add(gCurrentPage.mPanel);
+
+        gBody.revalidate();
+        gBody.repaint();
+    }
 }

@@ -34,11 +34,8 @@ public class TheSQLViewer extends Page {
             {
                 if (e.getButton() != MouseEvent.BUTTON1 || e.getClickCount() < 2 || mPrevQueryResults == null)
                     return;
-
                 int row = mTable.getSelectedRow();
-
-                TheSQL.gCurrentTitleID = mPrevQueryResults.get(row);
-                TheSQL.setPage("content");
+                TheSQL.setPage(new TheSQLContent(mPrevQueryResults.get(row)));
             }
         });
 
