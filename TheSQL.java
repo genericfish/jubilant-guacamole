@@ -41,7 +41,6 @@ public class TheSQL {
         addPage(new TheSQLAnalyst());
         addPage(new TheSQLLanding());
         addPage(new TheSQLLogin());
-        addPage(new TheSQLContent());
 
         gBody.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -63,6 +62,18 @@ public class TheSQL {
             gBody.remove(gCurrentPage.mPanel);
 
         gCurrentPage = gPages.get(pageName);
+        gBody.add(gCurrentPage.mPanel);
+
+        gBody.revalidate();
+        gBody.repaint();
+    }
+
+    public static void setPage(Page page)
+    {
+        if (gCurrentPage != null)
+            gBody.remove(gCurrentPage.mPanel);
+
+        gCurrentPage = page;
         gBody.add(gCurrentPage.mPanel);
 
         gBody.revalidate();
