@@ -28,6 +28,7 @@ public class TheSQL {
     static HashMap<String, Page> gPages = new HashMap<String, Page>();
     static String gUsername = "1488844";
     static Page gCurrentPage = null;
+    static String gCurrentTitleID = null;
 
     public static void main(String[] args)
     {
@@ -51,7 +52,6 @@ public class TheSQL {
 
     public static void addPage(Page page)
     {
-        System.out.println(page.mName);
         gPages.put(page.mName, page);
     }
 

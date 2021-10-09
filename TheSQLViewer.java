@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Vector;
@@ -8,6 +9,7 @@ import javax.swing.table.DefaultTableModel;
 public class TheSQLViewer extends Page {
     private final String[] mColumnNames = { "Title", "Genres", "Release", "Runtime" };
     private final String[] mColumns = { "originaltitle", "genres", "year", "runtimeminutes" };
+    private Vector<String> mPrevQueryResults = new Vector<String>();
     private TheSQLTable mTable = new TheSQLTable();
 
     public TheSQLViewer()
@@ -25,6 +27,18 @@ public class TheSQLViewer extends Page {
         JButton dislikedButton = createButton("Disliked", "SELECT * FROM titles OFFSET 80 LIMIT 20;");
 
         JTextField search = new JTextField("Search", 20);
+
+        mTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getButton() != MouseEvent.BUTTON1 || e.getClickCount() < 2 || mPrevQueryResults == null)
+                    return;
+
+                int row = mTable.getSelectedRow();
+
+                TheSQL.gCurrentTitleID = mPrevQueryResults.get(row);
+            }
+        });
 
         add(new JScrollPane(mTable), 0, 6, 0, 4);
         add(title, 20, 2, 3, 0);
@@ -55,6 +69,18 @@ public class TheSQLViewer extends Page {
 
         // Populate table with results from query
         model.setDataVector(TheSQL.gDatabase.getTable(results, mColumns), new Vector<String>(Arrays.asList(mColumnNames)));
+
+        try {
+            results = TheSQL.gDatabase.query(query);
+            mPrevQueryResults.removeAllElements();
+
+            while (results.next())
+                mPrevQueryResults.add(results.getString("titleid"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
 
         mTable.revalidate();
         mTable.repaint();
