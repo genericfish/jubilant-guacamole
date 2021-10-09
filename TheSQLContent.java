@@ -6,7 +6,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class TheSQLContent extends Page {
-
     public TheSQLContent(String titleID)
     {
         mName = "content";
@@ -40,8 +39,6 @@ public class TheSQLContent extends Page {
         }
         catch(Exception e) {
         }
-
-        
     }
 }
 
