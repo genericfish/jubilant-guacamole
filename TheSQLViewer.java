@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 import java.util.Arrays;
+import java.awt.event.*;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,7 +23,7 @@ public class TheSQLViewer extends Page {
         title.setFont(TheSQL.gHeaderFont);
 
         JButton historyButton = createButton("History", "SELECT * FROM titles OFFSET 20 LIMIT 20;");
-        JButton newButton = createButton("New", "SELECT * FROM titles OFFSET 40 LIMIT 20;");
+        JButton newButton = createButton("New", "SELECT * FROM titles ORDER BY year DESC LIMIT 20;");
         JButton likedButton = createButton("Liked", "SELECT * FROM titles OFFSET 60 LIMIT 20;");
         JButton dislikedButton = createButton("Disliked", "SELECT * FROM titles OFFSET 80 LIMIT 20;");
 
@@ -37,6 +38,7 @@ public class TheSQLViewer extends Page {
                 int row = mTable.getSelectedRow();
 
                 TheSQL.gCurrentTitleID = mPrevQueryResults.get(row);
+                TheSQL.setPage("content");
             }
         });
 
