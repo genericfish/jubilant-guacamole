@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.sql.*;
 import java.util.Arrays;
+import java.awt.event.*;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -20,11 +21,27 @@ public class TheSQLViewer extends Page {
         title.setFont(TheSQL.gHeaderFont);
 
         JButton historyButton = createButton("History", "SELECT * FROM titles OFFSET 20 LIMIT 20;");
-        JButton newButton = createButton("New", "SELECT * FROM titles OFFSET 40 LIMIT 20;");
+        JButton newButton = createButton("New", "SELECT * FROM titles ORDER BY year DESC LIMIT 20;");
         JButton likedButton = createButton("Liked", "SELECT * FROM titles OFFSET 60 LIMIT 20;");
         JButton dislikedButton = createButton("Disliked", "SELECT * FROM titles OFFSET 80 LIMIT 20;");
 
         JTextField search = new JTextField("Search", 20);
+
+        mTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getButton() != MouseEvent.BUTTON1)
+                    return;
+
+                if (e.getClickCount() < 2)
+                    return;
+
+                int row = mTable.getSelectedRow();
+                int col = mTable.getSelectedColumn();
+
+                TheSQL.setPage("content");
+            }
+        });
 
         add(new JScrollPane(mTable), 0, 6, 0, 4);
         add(title, 20, 2, 3, 0);
