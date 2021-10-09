@@ -28,7 +28,6 @@ public class TheSQL {
     static HashMap<String, Page> gPages = new HashMap<String, Page>();
     static String gUsername = "1488844";
     static Page gCurrentPage = null;
-    static String gCurrentTitleID = null;
 
     public static void main(String[] args)
     {
@@ -41,7 +40,6 @@ public class TheSQL {
         addPage(new TheSQLAnalyst());
         addPage(new TheSQLLanding());
         addPage(new TheSQLLogin());
-        addPage(new TheSQLContent());
 
         gBody.setAlignmentX(Component.CENTER_ALIGNMENT);
 
