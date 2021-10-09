@@ -7,6 +7,8 @@
 DATA_PATH="${1-data}"
 DATA_CLEAN_PATH="${DATA_PATH}/clean"
 
+rm -rf ${DATA_CLEAN_PATH}
+
 if [ ! -d "$DATA_PATH" ]; then
     echo "Invalid path \"${DATA_PATH}\" specified."
     exit 1
@@ -62,25 +64,22 @@ dawk 'NF == 10' titles.csv
 
 # Prepend a key column into principals.csv and customer_ratings.csv to act as primary key
 echo "key,titleId,nconst,category,job,characters" > $DATA_CLEAN_PATH/temp.csv
-dawk 'NR > 1 {print NR-1","$0;}' principals.csv
+awk -F"," 'NR > 1 {print NR-1","$0;}' $DATA_CLEAN_PATH/principals.csv >> $DATA_CLEAN_PATH/temp.csv
+mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/principals.csv
 
 echo "key,customerId,rating,date,titleId" > $DATA_CLEAN_PATH/temp.csv
-dawk 'NR > 1 {print NR-1","$0;}' customer_ratings.csv
-
+awk -F"," 'NR > 1 {print NR-1","$0;}' $DATA_CLEAN_PATH/customer_ratings.csv >> $DATA_CLEAN_PATH/temp.csv
+mv $DATA_CLEAN_PATH/temp.csv $DATA_CLEAN_PATH/customer_ratings.csv
 #########################################
 # PART 2: Upload clean data to database #
 #########################################
 
 PSQL_FLAGS="-h csce-315-db.engr.tamu.edu -U csce315_913_4_user -d csce315_913_4_db"
 
-psql -c "CREATE TABLE IF NOT EXISTS crew(titleId TEXT PRIMARY KEY,directors TEXT,writers TEXT);" $PSQL_FLAGS
-psql -c "CREATE TABLE IF NOT EXISTS titles(titleId TEXT PRIMARY KEY,titleType TEXT,originalTitle TEXT, startYear TEXT, endYear TEXT, runtimeMinutes TEXT, genres TEXT, Year TEXT, averageRating TEXT, numVotes TEXT);" $PSQL_FLAGS
-psql -c "CREATE TABLE IF NOT EXISTS customerRatings(key TEXT PRIMARY KEY, customerId TEXT, rating TEXT, date TEXT, titleId TEXT);" $PSQL_FLAGS
-psql -c "CREATE TABLE IF NOT EXISTS names(nconst TEXT,primaryName TEXT, birthYear TEXT, deathYear TEXT, primaryProfession TEXT);" $PSQL_FLAGS
-psql -c "CREATE TABLE IF NOT EXISTS principals(key TEXT PRIMARY KEY, titleId TEXT, nconst TEXT, category TEXT, job TEXT, characters TEXT);" $PSQL_FLAGS
+psql -c "CREATE TABLE IF NOT EXISTS crew(titleId TEXT PRIMARY KEY,directors TEXT,writers TEXT);CREATE TABLE IF NOT EXISTS titles(titleId TEXT PRIMARY KEY,titleType TEXT,originalTitle TEXT, startYear INTEGER, endYear INTEGER, runtimeMinutes INTEGER, genres TEXT, Year INTEGER, averageRating REAL, numVotes TEXT);CREATE TABLE IF NOT EXISTS customerRatings(key TEXT PRIMARY KEY, customerId TEXT, rating REAL, date DATE, titleId TEXT);CREATE TABLE IF NOT EXISTS names(nconst TEXT,primaryName TEXT, birthYear INTEGER, deathYear INTEGER, primaryProfession TEXT);CREATE TABLE IF NOT EXISTS principals(key TEXT PRIMARY KEY, titleId TEXT, nconst TEXT, category TEXT, job TEXT, characters TEXT);" $PSQL_FLAGS
 
 psql -c "\copy crew from 'data/clean/crew.csv' CSV HEADER" $PSQL_FLAGS
 psql -c "\copy titles from 'data/clean/titles.csv' CSV HEADER" $PSQL_FLAGS
-psql -c "\copy customerRatings from 'data/clean/customer_ratings.csv' CSV HEADER" $PSQL_FLAGS
+psql -c "\copy customerratings from 'data/clean/customer_ratings.csv' CSV HEADER" $PSQL_FLAGS
 psql -c "\copy names from 'data/clean/names.csv' CSV HEADER" $PSQL_FLAGS
 psql -c "\copy principals from 'data/clean/principals.csv' CSV HEADER" $PSQL_FLAGS
