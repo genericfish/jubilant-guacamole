@@ -8,7 +8,7 @@ import javax.swing.table.DefaultTableModel;
 public class TheSQLViewer extends Page {
     private final String[] mColumnNames = { "Title", "Genres", "Release", "Runtime" };
     private final String[] mColumns = { "originaltitle", "genres", "year", "runtimeminutes" };
-    private JTable mTable = new JTable();
+    private TheSQLTable mTable = new TheSQLTable();
 
     public TheSQLViewer()
     {
