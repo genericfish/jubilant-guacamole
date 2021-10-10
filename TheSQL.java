@@ -10,7 +10,7 @@ class Page {
 
     public void add(JComponent component, int ipady, int gridWidth, int gridx, int gridy)
     {
-        mConstraints.fill = GridBagConstraints.HORIZONTAL;
+        mConstraints.fill = GridBagConstraints.BOTH;
         mConstraints.ipady = ipady;
         mConstraints.gridwidth = gridWidth;
         mConstraints.gridx = gridx;
