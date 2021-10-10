@@ -6,10 +6,6 @@ import java.util.Vector;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-interface ButtonQuery {
-    String getQuery();
-}
-
 public class TheSQLViewer extends Page {
     private final String[] mColumnNames = { "Title", "Genres", "Release", "Runtime" };
     private final String[] mColumns = { "originaltitle", "genres", "year", "runtimeminutes" };
@@ -31,14 +27,14 @@ public class TheSQLViewer extends Page {
         JTextField begin = new JTextField(mBegin, 20);
         JTextField end = new JTextField(mEnd, 20);
 
-        JButton historyButton = createButton("History", () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
-        JButton newButton = createButton("New", () -> "SELECT * FROM titles ORDER BY year DESC, titleid DESC LIMIT 20;");
+        JButton historyButton = createButton("History", () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC;", TheSQL.gUsername, begin.getText(), end.getText()));
+        JButton newButton = createButton("New", () -> "SELECT * FROM titles ORDER BY year DESC, titleid DESC LIMIT 2500;");
         JButton likedButton = createButton(
             "Liked",
-            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating > 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
+            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating > 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC;", TheSQL.gUsername, begin.getText(), end.getText()));
         JButton dislikedButton = createButton(
             "Disliked",
-            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating < 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC LIMIT 20;", TheSQL.gUsername, begin.getText(), end.getText()));
+            () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating < 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC;", TheSQL.gUsername, begin.getText(), end.getText()));
         mTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e)
             {
