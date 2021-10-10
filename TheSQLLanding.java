@@ -8,6 +8,9 @@ public class TheSQLLanding extends Page {
 
         mPanel.setLayout(new GridBagLayout());
 
+        JLabel title = new JLabel(TheSQL.gGroupName);
+        title.setFont(TheSQL.gHeaderFont);
+
         JLabel prompt = new JLabel("I am a? ");
         prompt.setFont(TheSQL.gHeaderFont);
 
@@ -17,8 +20,10 @@ public class TheSQLLanding extends Page {
         viewerButton.addActionListener(e -> TheSQL.setPage("login"));
         analystButton.addActionListener(e -> TheSQL.setPage("analyst"));
 
-        add(prompt, 20, 2, 3, 0);
-        add(viewerButton, 0, 3, 0, 1);
-        add(analystButton, 0, 3, 3, 1);
+        add(title, 20, 6, 0, 0);
+
+        add(prompt, 20, 6, 0, 1);
+        add(viewerButton, 0, 3, 0, 2);
+        add(analystButton, 0, 3, 3, 2);
     }
 }
