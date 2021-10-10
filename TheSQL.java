@@ -2,24 +2,6 @@ import java.awt.*;
 import java.util.HashMap;
 import javax.swing.*;
 
-class Page {
-    public JPanel mPanel = new JPanel();
-    public String mName = null;
-
-    private GridBagConstraints mConstraints = new GridBagConstraints();
-
-    public void add(JComponent component, int ipady, int gridWidth, int gridx, int gridy)
-    {
-        mConstraints.fill = GridBagConstraints.HORIZONTAL;
-        mConstraints.ipady = ipady;
-        mConstraints.gridwidth = gridWidth;
-        mConstraints.gridx = gridx;
-        mConstraints.gridy = gridy;
-
-        mPanel.add(component, mConstraints);
-    }
-}
-
 public class TheSQL {
     static JPanel gBody = new JPanel();
     static final TheSQLSQL gDatabase = new TheSQLSQL();
