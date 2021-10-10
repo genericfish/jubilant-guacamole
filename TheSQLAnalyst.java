@@ -12,12 +12,16 @@ public class TheSQLAnalyst extends ContentPage {
 
         // Page components
         JLabel title = new JLabel("Project 4: The SQL");
+        JTextField begin = new JTextField(mBegin, 20);
+        JTextField end = new JTextField(mEnd, 20);
+
         title.setFont(TheSQL.gHeaderFont);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JButton refresh = createButton("refresh", () -> "SELECT * FROM (SELECT titleid, COUNT(*) FROM customerratings WHERE date BETWEEN '2003-01-01' AND '2006-01-01' GROUP BY titleid)T INNER JOIN titles ON T.titleid=titles.titleid ORDER BY count DESC, year DESC, T.titleid DESC;");
-        JButton director = new JButton("Directors");
-        JButton actor = new JButton("Actors");
+        JButton refresh = createButton("Update Table", () -> String.format(
+            "SELECT * FROM (SELECT titleid, COUNT(*) FROM customerratings WHERE date BETWEEN '%s' AND '%s' GROUP BY titleid)T INNER JOIN titles ON T.titleid=titles.titleid ORDER BY count DESC, year DESC, T.titleid DESC;",
+            begin.getText(), end.getText()
+        ));
 
         JLabel tableTitle = new JLabel("Popular Titles");
         tableTitle.setFont(TheSQL.gHeaderFont);
@@ -27,17 +31,13 @@ public class TheSQLAnalyst extends ContentPage {
         //first row: title
         add(title, 20, 6, 0, 0);
 
-        //second row: graph (to be implemented)
-        // gbcnt.fill = GridBagConstraints.HORIZONTAL;
-        // gbcnt.gridwidth = 6;
-        // gbcnt.gridx = 0;
-        // gbcnt.gridy = 1;
-        // mPanel.add( , gbcnt);
+        // graph (to be implemented)
+        // add(graph, 0, 6, 00, 1)
 
-        add(refresh, 5, 6, 0, 2);
-
-        //sixth row: table title
-        add(tableTitle, 10, 6, 0, 5);
+        add(tableTitle, 10, 6, 0, 3);
+        add(begin, 5, 3, 0, 4);
+        add(end, 5, 3, 3, 4);
+        add(refresh, 5, 6, 0, 5);
 
         add(new JScrollPane(mTable), 0, 6, 0, 6);
     }

@@ -28,8 +28,8 @@ class ContentPage extends Page {
     public String[] mColumns = { "originaltitle", "genres", "year", "runtimeminutes" };
     public Vector<String> mPrevQueryResults = new Vector<String>();
     public TheSQLTable mTable = new TheSQLTable();
-    public String mBegin = "1999-12-30";
-    public String mEnd = "2005-12-31";
+    public String mBegin = "1999-01-01";
+    public String mEnd = "2020-12-31";
 
     interface ButtonQuery {
         String getQuery();
