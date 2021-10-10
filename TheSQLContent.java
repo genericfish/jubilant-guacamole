@@ -3,7 +3,7 @@ import java.sql.*;
 import javax.swing.*;
 
 public class TheSQLContent extends Page {
-    class Component extends JComponent implements SwingConstants, Accessible {
+    class Component extends JComponent implements SwingConstants {
         public void setHorizontalAlignment(int alignment) {
         }
     }
