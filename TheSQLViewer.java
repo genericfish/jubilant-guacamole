@@ -26,6 +26,7 @@ public class TheSQLViewer extends Page {
 
         JLabel title = new JLabel(TheSQL.gGroupName);
         title.setFont(TheSQL.gHeaderFont);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
 
         JTextField begin = new JTextField(mBegin, 20);
         JTextField end = new JTextField(mEnd, 20);
@@ -49,14 +50,14 @@ public class TheSQLViewer extends Page {
             }
         });
 
-        add(begin, 1, 3, 0, 3);
-        add(end, 1, 3, 3, 3);
-        add(new JScrollPane(mTable), 0, 6, 0, 4);
-        add(title, 20, 2, 3, 0);
+        add(title, 20, 6, 0, 0);
         add(historyButton, 5, 3, 0, 1);
         add(newButton, 5, 3, 3, 1);
-        add(likedButton, 0, 3, 0, 2);
-        add(dislikedButton, 0, 3, 3, 2);
+        add(likedButton, 5, 3, 0, 2);
+        add(dislikedButton, 5, 3, 3, 2);
+        add(begin, 5, 3, 0, 3);
+        add(end, 5, 3, 3, 3);
+        add(new JScrollPane(mTable), 0, 6, 0, 4);
 
         historyButton.doClick();
     }
