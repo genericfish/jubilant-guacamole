@@ -1,19 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
-import java.util.Arrays;
-import java.util.Vector;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 
-public class TheSQLViewer extends Page {
-    private final String[] mColumnNames = { "Title", "Genres", "Release", "Runtime" };
-    private final String[] mColumns = { "originaltitle", "genres", "year", "runtimeminutes" };
-    private Vector<String> mPrevQueryResults = new Vector<String>();
-    private TheSQLTable mTable = new TheSQLTable();
-    private String mBegin = "1999-12-30";
-    private String mEnd = "2005-12-31";
-
+public class TheSQLViewer extends ContentPage {
     public TheSQLViewer()
     {
         mName = "viewer";
@@ -56,42 +45,5 @@ public class TheSQLViewer extends Page {
         add(new JScrollPane(mTable), 0, 6, 0, 4);
 
         historyButton.doClick();
-    }
-
-    public JButton createButton(String text, ButtonQuery queryGenerator)
-    {
-        JButton button = new JButton(text);
-
-        button.addActionListener(e -> populateTable(queryGenerator.getQuery()));
-
-        return button;
-    }
-
-    public void populateTable(String query)
-    {
-        DefaultTableModel model = (DefaultTableModel)mTable.getModel();
-
-        // Clear table
-        model.setRowCount(0);
-
-        ResultSet results = TheSQL.gDatabase.query(query);
-
-        // Populate table with results from query
-        model.setDataVector(TheSQL.gDatabase.getTable(results, mColumns), new Vector<String>(Arrays.asList(mColumnNames)));
-
-        try {
-            results = TheSQL.gDatabase.query(query);
-            mPrevQueryResults.removeAllElements();
-
-            while (results.next())
-                mPrevQueryResults.add(results.getString("titleid"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        mTable.revalidate();
-        mTable.repaint();
     }
 }
