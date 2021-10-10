@@ -39,14 +39,7 @@ public class TheSQL {
     // Removes the old page from the body and adds the new one
     public static void setPage(String pageName)
     {
-        if (gCurrentPage != null)
-            gBody.remove(gCurrentPage.mPanel);
-
-        gCurrentPage = gPages.get(pageName);
-        gBody.add(gCurrentPage.mPanel);
-
-        gBody.revalidate();
-        gBody.repaint();
+        setPage(gPages.get(pageName));
     }
 
     public static void setPage(Page page)
