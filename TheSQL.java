@@ -2,6 +2,9 @@ import java.awt.*;
 import java.util.HashMap;
 import javax.swing.*;
 
+interface ButtonQuery {
+    String getQuery();
+}
 class Page {
     public JPanel mPanel = new JPanel();
     public String mName = null;
