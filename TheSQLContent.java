@@ -1,44 +1,78 @@
 import java.awt.*;
 import java.sql.*;
-import java.util.Arrays;
-import java.util.Vector;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 
 public class TheSQLContent extends Page {
+    class Component extends JComponent implements SwingConstants {
+        public void setHorizontalAlignment(int alignment) {
+        }
+    }
+
     public TheSQLContent(String titleID)
     {
         mName = "content";
 
         ResultSet movie = TheSQL.gDatabase.query("SELECT * FROM titles WHERE titleid='" + titleID + "'");
 
-
         try {
-        movie.next();
-        String movieTitle = movie.getString("originaltitle");
-        String year = movie.getString("year");
-        String genre = movie.getString("genres");
-        String runtime = movie.getString("runtimeminutes");
+            movie.next();
 
-        mPanel.setLayout(new GridBagLayout());
+            String movieTitle = movie.getString("originaltitle");
+            String year = movie.getString("year");
+            String genre = movie.getString("genres");
+            String runtime = movie.getString("runtimeminutes");
 
-        JLabel title = new JLabel(movieTitle);
-        title.setFont(new Font("Calibri", Font.BOLD, 60));
-        JLabel yearT = new JLabel(year);
-        title.setFont(new Font("Calibri", Font.BOLD, 30));
-        JLabel genreT = new JLabel(genre);
-        title.setFont(new Font("Calibri", Font.BOLD, 30));
-        JLabel runtimeT = new JLabel(runtime);
-        title.setFont(new Font("Calibri", Font.BOLD, 30));
-        add(title, 40, 5, 10, 0);
-        add(yearT, 20, 20, 12, 20);
-        add(genreT, 20, 20, 12, 40);
-        add(runtimeT, 20, 20, 12, 60);
-        JButton play = new JButton("Play");
-        add(play, 40, 20, 12, 150);
-        }
-        catch(Exception e) {
+            mPanel.setLayout(new GridBagLayout());
+
+            JLabel title = new JLabel(movieTitle);
+            title.setFont(new Font("Calibri", Font.BOLD, 60));
+
+            JLabel groupName = new JLabel(TheSQL.gGroupName);
+            groupName.setFont(TheSQL.gHeaderFont);
+
+            JLabel genreT = new JLabel("Genre: " + genre);
+            if (genre.split("/").length > 1)
+                genreT.setText("Genres: " + genre.replaceAll("/", ", "));
+
+            if (runtime != null) {
+                int hours = Integer.parseInt(runtime) / 60;
+                int minutes = Integer.parseInt(runtime) % 60;
+
+                JLabel runtimeT = new JLabel();
+                runtimeT.setText(String.format("Runtime: %d:%d", hours, minutes));
+                runtimeT.setHorizontalAlignment(SwingConstants.CENTER);
+
+                add(runtimeT, 20, 9, 0, 4);
+            }
+
+            JLabel yearT = new JLabel("Released: " + year);
+            JButton play = new JButton("Play");
+
+            JButton back = new JButton("Back");
+            back.addActionListener(e -> TheSQL.setPage("viewer"));
+
+            groupName.setHorizontalAlignment(SwingConstants.CENTER);
+            title.setHorizontalAlignment(SwingConstants.CENTER);
+            yearT.setHorizontalAlignment(SwingConstants.CENTER);
+            genreT.setHorizontalAlignment(SwingConstants.CENTER);
+
+            play.setHorizontalAlignment(SwingConstants.CENTER);
+            back.setHorizontalAlignment(SwingConstants.CENTER);
+
+            add(groupName, 20, 9, 0, 0);
+            add(title, 20, 9, 0, 1);
+            add(yearT, 20, 9, 0, 2);
+            add(genreT, 20, 9, 0, 3);
+            add(play, 20, 9, 0, 5);
+            add(back, 20, 9, 0, 6);
+        } catch (Exception e) {
         }
     }
-}
 
+    public void add(Component component, int ipady, int gridWidth, int gridx, int gridy)
+    {
+        component.setHorizontalAlignment(SwingConstants.CENTER);
+
+        super.add(component, ipady, gridWidth, gridx, gridy);
+    }
+}

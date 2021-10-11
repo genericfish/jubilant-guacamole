@@ -2,24 +2,6 @@ import java.awt.*;
 import java.util.HashMap;
 import javax.swing.*;
 
-class Page {
-    public JPanel mPanel = new JPanel();
-    public String mName = null;
-
-    private GridBagConstraints mConstraints = new GridBagConstraints();
-
-    public void add(JComponent component, int ipady, int gridWidth, int gridx, int gridy)
-    {
-        mConstraints.fill = GridBagConstraints.HORIZONTAL;
-        mConstraints.ipady = ipady;
-        mConstraints.gridwidth = gridWidth;
-        mConstraints.gridx = gridx;
-        mConstraints.gridy = gridy;
-
-        mPanel.add(component, mConstraints);
-    }
-}
-
 public class TheSQL {
     static JPanel gBody = new JPanel();
     static final TheSQLSQL gDatabase = new TheSQLSQL();
@@ -28,7 +10,6 @@ public class TheSQL {
     static HashMap<String, Page> gPages = new HashMap<String, Page>();
     static String gUsername = "1488844";
     static Page gCurrentPage = null;
-    static String gCurrentTitleID = null;
 
     public static void main(String[] args)
     {
@@ -58,14 +39,7 @@ public class TheSQL {
     // Removes the old page from the body and adds the new one
     public static void setPage(String pageName)
     {
-        if (gCurrentPage != null)
-            gBody.remove(gCurrentPage.mPanel);
-
-        gCurrentPage = gPages.get(pageName);
-        gBody.add(gCurrentPage.mPanel);
-
-        gBody.revalidate();
-        gBody.repaint();
+        setPage(gPages.get(pageName));
     }
 
     public static void setPage(Page page)
