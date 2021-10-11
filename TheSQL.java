@@ -41,7 +41,6 @@ public class TheSQL {
         addPage(new TheSQLAnalyst());
         addPage(new TheSQLLanding());
         addPage(new TheSQLLogin());
-        addPage(new TheSQLContent());
 
         gBody.setAlignmentX(Component.CENTER_ALIGNMENT);
 
