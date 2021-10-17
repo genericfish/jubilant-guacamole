@@ -17,7 +17,7 @@ public class TheSQLViewer extends ContentPage {
         JTextField end = new JTextField(mEnd, 20);
 
         JButton historyButton = createButton("History", () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC;", TheSQL.gUsername, begin.getText(), end.getText()));
-        JButton newButton = createButton("New", () -> "SELECT * FROM titles ORDER BY year DESC, titleid DESC LIMIT 2500;");
+        JButton recButton = createButton("Recommendations", () -> TheSQL.getQuery("recommendations.sql", TheSQL.gUsername));
         JButton likedButton = createButton(
             "Liked",
             () -> String.format("SELECT * FROM customerratings INNER JOIN titles ON customerratings.titleid=titles.titleid WHERE customerid='%s' AND rating > 3 AND date BETWEEN '%s' AND '%s' ORDER BY date DESC, key DESC;", TheSQL.gUsername, begin.getText(), end.getText()));
@@ -37,7 +37,7 @@ public class TheSQLViewer extends ContentPage {
 
         add(title, 20, 6, 0, 0);
         add(historyButton, 5, 3, 0, 1);
-        add(newButton, 5, 3, 3, 1);
+        add(recButton, 5, 3, 3, 1);
         add(likedButton, 5, 3, 0, 2);
         add(dislikedButton, 5, 3, 3, 2);
         add(begin, 5, 3, 0, 3);
