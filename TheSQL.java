@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.util.HashMap;
 import javax.swing.*;
+import java.io.File;
+import java.sql.*;
+import java.util.Scanner;
 
 public class TheSQL {
     static JPanel gBody = new JPanel();
@@ -52,5 +55,25 @@ public class TheSQL {
 
         gBody.revalidate();
         gBody.repaint();
+    }
+
+    public static String getQuery(String filename, String format) {
+        String result = null;
+
+        try {
+            //constructor of file class having file as argument
+            File file = new File(filename);
+            Scanner sc = new Scanner(file); //file to be scanned
+            String query = "";
+
+            while (sc.hasNextLine()) //returns true if and only if scanner has another token
+                query += sc.nextLine() + " ";
+
+            result = (query.replace("%s", format));
+            sc.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
