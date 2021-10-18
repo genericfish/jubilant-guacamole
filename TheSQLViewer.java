@@ -43,7 +43,5 @@ public class TheSQLViewer extends ContentPage {
         add(begin, 5, 3, 0, 3);
         add(end, 5, 3, 3, 3);
         add(new JScrollPane(mTable), 0, 6, 0, 4);
-
-        historyButton.doClick();
     }
 }

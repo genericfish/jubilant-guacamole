@@ -1,7 +1,11 @@
 import java.awt.*;
+import java.util.*;
 import javax.swing.*;
+import java.sql.*;
 
 public class TheSQLAnalyst extends ContentPage {
+    JLabel mError = new JLabel("");
+
     public TheSQLAnalyst()
     {
         mName = "analyst";
@@ -12,8 +16,6 @@ public class TheSQLAnalyst extends ContentPage {
 
         // Page components
         JLabel title = new JLabel(TheSQL.gGroupName);
-        JTextField begin = new JTextField(mBegin, 20);
-        JTextField end = new JTextField(mEnd, 20);
         JTabbedPane pane = new JTabbedPane();
 
         JComponent tab1 = makePopularPanel();
@@ -26,54 +28,167 @@ public class TheSQLAnalyst extends ContentPage {
         pane.addTab("Fresh Tomato Number", null, tab3, "");
         pane.addTab("Hollywood Pairs", null, tab4, "");
 
+        pane.addChangeListener(e -> {
+            mError.setText("");
+        });
+
         title.setFont(TheSQL.gHeaderFont);
         title.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JButton refresh = createButton("Update Table", () -> String.format("SELECT * FROM (SELECT titleid, COUNT(*) FROM customerratings WHERE date BETWEEN '%s' AND '%s' GROUP BY titleid)T INNER JOIN titles ON T.titleid=titles.titleid ORDER BY count DESC, year DESC, T.titleid DESC;", begin.getText(), end.getText()));
-
-        JLabel tableTitle = new JLabel("Popular Titles");
-        tableTitle.setFont(TheSQL.gHeaderFont);
-        tableTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        mError.setHorizontalAlignment(SwingConstants.CENTER);
+        mError.setForeground(Color.RED);
 
         //adding items to the page
-        //first row: title
         add(title, 20, 6, 0, 0);
-
-        // graph (to be implemented)
-        // add(graph, 0, 6, 00, 1)
-
-        add(tableTitle, 10, 6, 0, 3);
-        add(begin, 5, 3, 0, 4);
-        add(end, 5, 3, 3, 4);
-        add(refresh, 5, 6, 0, 5);
-
-        add(new JScrollPane(mTable), 0, 6, 0, 6);
-        add(pane, 0, 0, 0, 7);
+        add(pane, 0, 0, 0, 1);
+        add(mError, 0, 0, 0, 2);
+        add(new JScrollPane(mTable), 0, 6, 0, 3);
     }
 
-    JComponent makeTabPanel(String text)
+    void addError(String errorMessage)
     {
-        JPanel panel = new JPanel(false);
-        JLabel filler = new JLabel(text);
-        filler.setHorizontalAlignment(JLabel.CENTER);
-        panel.setLayout(new GridLayout(1, 1));
-        panel.add(filler);
+        mError.setText(errorMessage);
+    }
+
+    JComponent makePopularPanel()
+    {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.ipady = 0;
+        constraints.gridwidth = 12;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+
+        JLabel title = new JLabel("Popular Titles");
+        title.setFont(TheSQL.gHeaderFont);
+        title.setHorizontalAlignment(SwingConstants.HORIZONTAL);
+        panel.add(title, constraints);
+
+        JTextField begin = new JTextField(mBegin, 20);
+        JTextField end = new JTextField(mEnd, 20);
+
+        constraints.gridy = 1;
+        constraints.gridwidth = 6;
+
+        panel.add(begin, constraints);
+
+        constraints.gridx = 6;
+
+        panel.add(end, constraints);
+
+        JButton refresh = createButton("Find Popular", () -> {
+            ArrayList<String> startDate = new ArrayList<>(Arrays.asList(begin.getText().split("-")));
+            ArrayList<String> endDate = new ArrayList<>(Arrays.asList(end.getText().split("-")));
+
+            if (startDate.size() != 3 || begin.getText().matches(".*[a-z].*") || !TheSQL.validateDate(begin.getText())) {
+                addError("Invalid start date.");
+                return null;
+            }
+
+            if (endDate.size() != 3 || end.getText().matches(".*[a-z].*") || !TheSQL.validateDate(end.getText())) {
+                addError("Invalid end date.");
+                return null;
+            }
+
+            mError.setText("");
+
+            mColumnNames = new String[] { "Title", "Reviews", "Genres", "Release", "Runtime" };
+            mColumns = new String[] { "originaltitle", "count", "genres", "year", "runtimeminutes" };
+
+            return String.format("SELECT * FROM (SELECT titleid, COUNT(*) FROM customerratings WHERE date BETWEEN '%s' AND '%s' GROUP BY titleid)T INNER JOIN titles ON T.titleid=titles.titleid ORDER BY count DESC, year DESC, T.titleid DESC;", begin.getText(), end.getText());
+        }, false);
+
+        constraints.gridx = 0;
+        constraints.gridwidth = 12;
+        constraints.gridy = 2;
+        panel.add(refresh, constraints);
+
         return panel;
     }
 
-    JComponent makePopularPanel(){
+    JComponent makeDirectorPanel()
+    {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.ipady = 0;
+        constraints.gridwidth = 12;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+
+        JLabel title = new JLabel("Popular Titles");
+        title.setFont(TheSQL.gHeaderFont);
+        title.setHorizontalAlignment(SwingConstants.HORIZONTAL);
+        panel.add(title, constraints);
+
+        JTextField actor = new JTextField("nm0000001", 20);
+
+        constraints.gridy = 1;
+
+        panel.add(actor, constraints);
+
+        JButton button = createButton("Find Indirect Director", () -> {
+            mColumnNames = new String[] { "Director", "Co-stars worked with" };
+            mColumns = new String[] { "primaryname", "appearances" };
+
+            ResultSet actorExists = TheSQL.gDatabase.query(
+                String.format(
+                    "SELECT * FROM names WHERE nconst='%s';",
+                    actor.getText()));
+
+            try {
+                if (actorExists.next())
+                    return IndirectDirector.getDirector(actor.getText());
+
+            } catch (Exception e) {}
+
+            addError("Invalid actor ID.");
+            return null;
+        }, false);
+        constraints.gridy = 2;
+        panel.add(button, constraints);
+
+        return panel;
+    }
+
+    JComponent makeTomatoPanel()
+    {
         return null;
     }
 
-    JComponent makeDirectorPanel() {
-        return null;
-    }
+    JComponent makePairsPanel()
+    {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
 
-    JComponent makeTomatoPanel() {
-        return null;
-    }
+        GridBagConstraints constraints = new GridBagConstraints();
 
-    JComponent makePairsPanel() {
-        return null
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.ipady = 0;
+        constraints.gridwidth = 12;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+
+        JLabel title = new JLabel("Hollywood Pairs");
+        title.setFont(TheSQL.gHeaderFont);
+        title.setHorizontalAlignment(SwingConstants.HORIZONTAL);
+        panel.add(title, constraints);
+
+        JButton button = createButton("Find Pairs", () -> {
+            mColumnNames = new String[] { "Actor 1", "Actor 2", "Appearances", "Pair Rating" };
+            mColumns = new String[] { "person1", "person2", "appearances", "rating" };
+
+            return HollywoodPairs.getPairs();
+        }, false);
+        constraints.gridy = 1;
+        panel.add(button, constraints);
+
+        return panel;
     }
 }
