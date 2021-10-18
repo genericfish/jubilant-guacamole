@@ -18,7 +18,7 @@ SELECT
     A.ActorName AS Person1,
     B.ActorName AS Person2,
     COUNT(*) AS Appearances,
-    SQRT(SUM(A.Rating * A.Rating)/COUNT(*) + SQRT(COUNT(*))) AS Rating
+    ROUND(10.0 * (COUNT(CASE WHEN A.Rating >= 6.95 THEN 1.0 END) + 1.0) / (COUNT(*) + 2.0), 2) AS Rating
 FROM Dataset AS A
 JOIN Dataset AS B
 ON A.Actor < B.Actor
@@ -26,4 +26,5 @@ WHERE A.Content = B.Content
 GROUP BY Person1, Person2
 ORDER BY
     Rating DESC,
-    Appearances DESC;
+    Appearances DESC
+LIMIT 50;
