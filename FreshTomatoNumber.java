@@ -18,7 +18,7 @@ public class FreshTomatoNumber
             HashMap<String, ArrayList<String>> currentLayer = layers.get(i);
             HashMap<String, ArrayList<String>> prevLayer = layers.get(i-1);
             ArrayList<String> currentFans = currentLayer.get(targetMovie);
-            System.out.println(String.format("Current fans: %s", currentFans.toString()));
+            System.out.println(String.format("Current fans: %s", currentFans));
 
             String commonFan;
             String commonMovie;
@@ -26,8 +26,9 @@ public class FreshTomatoNumber
             // Find the first movie in the previous layer with a fan in common
             for (String movie : prevLayer.keySet()) {
                 for(String fan : currentFans){
-                    System.out.println(String.format("Previous layer fans: %s", (prevLayer.get(movie))));
-                    if(prevLayer.get(movie).indexOf(fan) != -1){
+                    //System.out.println(String.format("Previous layer fans: %s", (prevLayer.get(movie))));
+                    if(prevLayer.get(movie).contains(fan)){
+                        System.out.println("Fan found.");
                         commonMovie = movie;
                         commonFan = fan;
                         ArrayList<String> pathNode = new ArrayList<>(List.of(commonMovie, commonFan));
@@ -35,6 +36,9 @@ public class FreshTomatoNumber
                         foundFan = true;
                         targetMovie = commonMovie;
                         break;
+                    }
+                    else{
+                        //System.out.println(String.format("%s %s", movie, prevLayer.get(movie)));
                     }
                 }
                 if(foundFan){
@@ -60,7 +64,7 @@ public class FreshTomatoNumber
 
         ResultSet layerInfo = TheSQL.gDatabase.query(
             String.format(
-                "SELECT users.customerid,titleid FROM ( SELECT customerid FROM customerratings WHERE titleid='%s' AND rating > 3 )users INNER JOIN customerratings ON users.customerid=customerratings.customerid WHERE rating > 3",
+                "WITH Layer AS ( SELECT DISTINCT titleid AS id FROM customerratings WHERE EXISTS ( SELECT * FROM ( SELECT ARRAY_AGG(customerid) AS whitelist FROM customerratings WHERE titleid='%s' AND rating > 3 )Z WHERE customerratings.customerid=ANY(Z.whitelist) ) AND rating > 3 ) SELECT customerratings.customerid, customerratings.titleid FROM customerratings INNER JOIN Layer ON customerratings.titleid=Layer.id WHERE rating > 3;",
                 contentID)
         ); 
         try {
@@ -103,24 +107,35 @@ public class FreshTomatoNumber
         while(layers.get(layers.size()-1).get(contentB) == null){
             System.out.println(String.format("Generating layer %d", index+1));
             layers.add(new HashMap<String, ArrayList<String>>());
+            // For each movie in a layer
             for (String movieString : layers.get(index).keySet()) {
                 //System.out.println(String.format("Searching for %s", movieString));
                 if(!movies.contains(movieString)){
                     HashMap<String, ArrayList<String>> currentGeneration = generateLayer(movieString);
+                    if(currentGeneration.get("tt0304678") != null){
+                        System.out.println(String.format("Actual parent fans: %s", getFans(movieString)));
+                        System.out.println(String.format("parent fans: %s", layers.get(index).get(movieString)));
+
+                    }
+                    // For each generated movie in the next layer
                     for(String key : currentGeneration.keySet()){
-                        if(!layers.get(index+1).containsKey(key)){
+                        if(layers.get(index+1).containsKey(key)){
+                            ArrayList<String> temp = currentGeneration.get(key);
+                            temp.addAll(layers.get(index+1).get(key));
+                            layers.get(index+1).put(key, temp);
+                        }
+                        else{
                             layers.get(index+1).put(key, currentGeneration.get(key));
                         }
+
                     }
                     if(currentGeneration.containsKey(contentB)){
+                        //System.out.println("contentB found");
                         break;
                     }
                 }
             }
             index++;
-            if(index > 6){
-                break;
-            }
         }
         System.out.println(String.format("%d layers generated", layers.size()));
 
@@ -146,29 +161,12 @@ public class FreshTomatoNumber
             while (contentFans.next()) {
                 String customerid = contentFans.getString("customerid");
                 results.add(customerid);
-                fans.add(contentFans.getString(customerid));
-                getLikedContent(customerid);
+                fans.add(contentFans.getString("customerid"));
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return results;
-    }
-
-    public Set<String> getLikedContent(String user){
-        Set<String> results = new HashSet<String>();
-        ResultSet contentFans = TheSQL.gDatabase.query(
-                String.format(
-                    "SELECT titleid FROM customerratings WHERE customerid='%s' AND rating>=4;",
-                    user));
-
-        try {
-            while (contentFans.next()) {
-                results.add(contentFans.getString("customerid"));
-                movies.add(contentFans.getString("customerid"));
-            }
-        } catch (Exception e) {
-        }
         return results;
     }
 }
