@@ -176,21 +176,23 @@ public class TheSQLAnalyst extends ContentPage {
                 output.setForeground(Color.RED);
             }
             else{
+                String input1Trimmed = input1.getText().trim();
+                String input2Trimmed = input1.getText().trim();
                 ResultSet contentA = TheSQL.gDatabase.query(
                     String.format(
-                        "SELECT contentid FROM customerratings WHERE contentid='%s';",
-                        input1.getText()));
+                        "SELECT titleid FROM customerratings WHERE titleid='%s';",
+                        input1Trimmed));
                 
                 ResultSet contentB = TheSQL.gDatabase.query(
                     String.format(
-                        "SELECT contentid FROM customerratings WHERE contentid='%s';",
-                        input2.getText()));
+                        "SELECT titleid FROM customerratings WHERE titleid='%s';",
+                        input2Trimmed));
 
                 try{
                     if (contentA.next() && contentB.next()) {
                         output.setForeground(Color.BLACK);
                         FreshTomatoNumber ftn = new FreshTomatoNumber();
-                        ArrayList<ArrayList<String>> result = ftn.findFreshTomatoNumber(input1.getText(), input2.getText());
+                        ArrayList<ArrayList<String>> result = ftn.findFreshTomatoNumber(input1Trimmed, input2Trimmed);
                         output.setText(result.toString());
                     }
                     else{
