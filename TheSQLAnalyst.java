@@ -177,7 +177,7 @@ public class TheSQLAnalyst extends ContentPage {
             }
             else{
                 String input1Trimmed = input1.getText().trim();
-                String input2Trimmed = input1.getText().trim();
+                String input2Trimmed = input2.getText().trim();
                 ResultSet contentA = TheSQL.gDatabase.query(
                     String.format(
                         "SELECT titleid FROM customerratings WHERE titleid='%s';",
