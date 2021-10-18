@@ -33,6 +33,7 @@ public class TheSQLLogin extends Page {
 
             try {
                 if (userExists.next()) {
+                    TheSQL.gUsername = customerID.getText();
                     TheSQL.setPage("viewer");
 
                     return;
