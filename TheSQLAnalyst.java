@@ -157,9 +157,64 @@ public class TheSQLAnalyst extends ContentPage {
         return panel;
     }
 
-    JComponent makeTomatoPanel()
-    {
-        return null;
+    JComponent makeTomatoPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints mConstraints = new GridBagConstraints();
+        mConstraints.fill = GridBagConstraints.BOTH;
+        mConstraints.ipady = 2;
+        mConstraints.gridwidth = 2;
+        mConstraints.gridx = 0;
+        mConstraints.gridy = 0;
+        JTextField input1 = new JTextField("Content ID A", 20);
+        JTextField input2 = new JTextField("Content ID B", 20);
+        JLabel output = new JLabel("Please Enter Values");
+        JButton compute = new JButton("Find FTN");
+        compute.addActionListener(event -> {
+            if(input1.getText() == input2.getText()){
+                output.setText("Error: Identical IDs Entered");
+                output.setForeground(Color.RED);
+            }
+            else{
+                ResultSet contentA = TheSQL.gDatabase.query(
+                    String.format(
+                        "SELECT contentid FROM customerratings WHERE contentid='%s';",
+                        input1.getText()));
+                
+                ResultSet contentB = TheSQL.gDatabase.query(
+                    String.format(
+                        "SELECT contentid FROM customerratings WHERE contentid='%s';",
+                        input2.getText()));
+
+                try{
+                    if (contentA.next() && contentB.next()) {
+                        output.setForeground(Color.BLACK);
+                        FreshTomatoNumber ftn = new FreshTomatoNumber();
+                        ArrayList<ArrayList<String>> result = ftn.findFreshTomatoNumber(input1.getText(), input2.getText());
+                        output.setText(result.toString());
+                    }
+                    else{
+                        output.setText("Error: Unrated/Invalid Content ID(s)");
+                        output.setForeground(Color.RED);
+                    }
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+            
+        });
+        panel.add(input1, mConstraints);
+        mConstraints.gridx = 2;
+        panel.add(input2, mConstraints);
+        mConstraints.gridx = 4;
+        mConstraints.gridwidth = 1;
+        panel.add(compute, mConstraints);
+        mConstraints.gridy = 1;
+        mConstraints.gridx = 0;
+        panel.add(output, mConstraints);
+
+        return panel;
     }
 
     JComponent makePairsPanel()
