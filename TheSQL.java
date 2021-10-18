@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.io.File;
 import java.sql.*;
 import java.util.Scanner;
+import java.text.*;
 
 public class TheSQL {
     static JPanel gBody = new JPanel();
@@ -75,5 +76,18 @@ public class TheSQL {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static boolean validateDate(String date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        df.setLenient(false);
+
+        try {
+            df.parse(date);
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 }

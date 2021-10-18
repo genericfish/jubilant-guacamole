@@ -37,19 +37,31 @@ class ContentPage extends Page {
 
     public JButton createButton(String text, ButtonQuery queryGenerator)
     {
+        return createButton(text, queryGenerator, true);
+    }
+
+    public JButton createButton(String text, ButtonQuery queryGenerator, boolean cache)
+    {
         JButton button = new JButton(text);
 
-        button.addActionListener(e -> populateTable(queryGenerator.getQuery()));
+        button.addActionListener(e -> populateTable(queryGenerator.getQuery(), cache));
 
         return button;
     }
 
-    public void populateTable(String query)
+    public void populateTable(String query, boolean cache)
     {
         DefaultTableModel model = (DefaultTableModel)mTable.getModel();
 
         // Clear table
         model.setRowCount(0);
+
+        if (query == null) {
+            mTable.revalidate();
+            mTable.repaint();
+
+            return;
+        }
 
         ResultSet results = TheSQL.gDatabase.query(query);
 
@@ -60,8 +72,10 @@ class ContentPage extends Page {
             results = TheSQL.gDatabase.query(query);
             mPrevQueryResults.removeAllElements();
 
-            while (results.next())
-                mPrevQueryResults.add(results.getString("titleid"));
+            if (cache) {
+                while (results.next())
+                    mPrevQueryResults.add(results.getString("titleid"));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
